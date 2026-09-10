@@ -7,8 +7,8 @@ export type MacroCardProps = {
 
 export type MealItemProps = {
     name: string;
-    calories: string;
-    protein: string;
+    calories: number;
+    protein: number;
     carbs: number;
     fat: number;
 };
