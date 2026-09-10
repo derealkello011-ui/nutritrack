@@ -36,7 +36,7 @@ export default function HomeScreen() {
         <StatusBar style="light"/>
         <HomeHeader />
         <MacroGrid meals={meals} />
-        <RecentMeals meals={ meals } />
+        <RecentMeals meals={ meals } onDelete={loadMeals}/>
       </ScrollView>
       
     </SafeAreaProvider>

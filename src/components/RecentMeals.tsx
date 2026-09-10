@@ -5,7 +5,7 @@ import { Text, View } from 'react-native'
 import MealItem from './MealItem'
 
 const RecentMeals = ( {
-    meals
+    meals, onDelete
 }: ReacentMealsProps) => {
   return (
       <View style={{
@@ -22,11 +22,13 @@ const RecentMeals = ( {
                   meals.slice( 0, 5 ).map( ( meal ) => (
                       <MealItem
                           key={meal.id}
+                          id={meal.id}
                           name={meal.name}
                           calories={meal.calories}
                           protein={meal.protein}
                           carbs={meal.carbs}
                           fat={meal.fat}
+                          onDelete={onDelete}
                       />
                     )))
             };

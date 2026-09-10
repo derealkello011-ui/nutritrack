@@ -5,14 +5,6 @@ export type MacroCardProps = {
     color: string
 };
 
-export type MealItemProps = {
-    name: string;
-    calories: number;
-    protein: number;
-    carbs: number;
-    fat: number;
-};
-
 export type Meal = {
     id: string,
     name: string,
@@ -25,6 +17,7 @@ export type Meal = {
 
 export type ReacentMealsProps = {
     meals: Meal[];
+    onDelete: () => void;
 };
 
 export type MacroGridProps = {
