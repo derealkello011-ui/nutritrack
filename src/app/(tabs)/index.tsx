@@ -1,13 +1,14 @@
 import HomeHeader from "@/components/HomeHeader";
 import MacroGrid from "@/components/MacroGrid";
 import RecentMeals from "@/components/RecentMeals";
+import ShareButton from "@/components/ShareButton";
 import { getMeals } from "@/storage/meals";
 import { globalStyles } from "@/styles/global";
 import { Meal } from "@/types/types";
 import { useFocusEffect } from "expo-router";
 import { StatusBar } from 'expo-status-bar';
 import { useCallback, useState } from "react";
-import { Alert, ScrollView, Text } from "react-native";
+import { Alert, ScrollView, Text, View } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 export default function HomeScreen() { 
@@ -32,8 +33,12 @@ export default function HomeScreen() {
             style={globalStyles.container} 
             contentContainerStyle={{ paddingBottom: 120 }}
         >
-        <Text style={globalStyles.title}>NutriTrack</Text>
-        <StatusBar style="light"/>
+        <View style={globalStyles.header}>
+          <Text style={globalStyles.title}>NutriTrack</Text>
+          <ShareButton meals={meals} />
+        </View>
+        
+        <StatusBar style="light" />
         <HomeHeader />
         <MacroGrid meals={meals} />
         <RecentMeals meals={ meals } onDelete={loadMeals}/>
