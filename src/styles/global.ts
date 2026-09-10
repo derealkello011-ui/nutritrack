@@ -1,4 +1,4 @@
-import { StyleSheet } from "react-native";
+import { Platform, StyleSheet } from "react-native";
 
 export const colors = {
     background: '#1a1a2e',
@@ -14,7 +14,7 @@ export const globalStyles = StyleSheet.create( {
     container: {
         flex: 1,
         backgroundColor: colors.background,
-        paddingTop: 60,
+        paddingTop: Platform.OS === 'ios' ? 60 : 20,
         paddingHorizontal: 20,
         paddingBottom: 100,
     },
