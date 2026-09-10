@@ -1,5 +1,6 @@
 import { addMeal } from '@/storage/meals';
 import { colors, globalStyles } from '@/styles/global';
+import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
 import { Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
@@ -73,7 +74,10 @@ const AddMealScreen = () => {
         "Meal Added",
         "Meal added successfully!",
         "success",
-        () => router.push('/')
+        () => {
+          Haptics.notificationAsync( Haptics.NotificationFeedbackType.Success );
+          router.push( '/' );
+        }
       );
     }
   };

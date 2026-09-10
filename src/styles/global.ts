@@ -39,7 +39,10 @@ export const globalStyles = StyleSheet.create( {
     empty: {
         color: colors.textSecondary,
         justifyContent: 'space-between',
+        alignContent: 'center',
         alignItems: 'center',
+        alignSelf: 'center',
+        padding: '20%',
     },
     header: {
         flexDirection: 'row',
