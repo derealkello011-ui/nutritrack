@@ -1,0 +1,56 @@
+import { colors } from "@/styles/global";
+import { Meal } from "@/types/types";
+import { Ionicons } from "@expo/vector-icons";
+import * as Clipboard from 'expo-clipboard';
+import * as Haptics from 'expo-haptics';
+import { Alert, StyleSheet, Text, TouchableOpacity } from "react-native";
+
+
+type CopyButtonProps = {
+    meals: Meal[];
+}
+
+export default function CopyButton( { meals }: CopyButtonProps ) {
+    const handleCopy = async () => {
+        const totals = meals.reduce(
+            ( acc, meal ) => ( {
+                calories: acc.calories + meal.calories,
+                protein: acc.protein + meal.protein,
+                carbs: acc.carbs + meal.carbs,
+                fat: acc.fat + meal.fat,
+            } ),
+            { calories: 0, protein: 0, carbs: 0, fat: 0 },
+        );
+
+        const summary = `NutriTrack Daily Summary:\n\nCalories: ${ totals.calories }\nProtein: ${ totals.protein }\nCarbs: ${ totals.carbs }\nFat: ${ totals.fat }\n\nMeals: ${ meals.length } logged today.\nCreated by d3r3alk3ll0 😁`
+        
+        await Clipboard.setStringAsync( summary );
+        Haptics.notificationAsync( Haptics.NotificationFeedbackType.Success );
+        Alert.alert( 'Copied', 'Macro summary copied to clipboard!' );
+    };
+
+    return (
+        <TouchableOpacity style={styles.button} onPress={handleCopy}>
+            <Ionicons
+                name="copy-outline"
+                size={18}
+                color={colors.primary}
+            />
+            <Text style={styles.text}>
+                Copy Summary
+            </Text>
+        </TouchableOpacity>
+    );
+}
+const styles = StyleSheet.create({
+    button: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+        marginTop: 16,
+    },
+    text: {
+        color: colors.primary,
+        fontSize: 14,
+    }
+});
