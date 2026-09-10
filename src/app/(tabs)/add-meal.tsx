@@ -4,7 +4,7 @@ import { Text, View } from 'react-native'
 
 const AddMealScreen = () => {
   return (
-      <View style={globalStyles.innerContainer}>
+      <View style={globalStyles.container}>
           <Text style={globalStyles.title}>Add Meal</Text>
     </View>
   )

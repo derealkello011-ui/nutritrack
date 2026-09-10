@@ -16,6 +16,7 @@ export const globalStyles = StyleSheet.create( {
         backgroundColor: colors.background,
         paddingTop: 60,
         paddingHorizontal: 20,
+        paddingBottom: 100,
     },
     innerContainer: {
         flex: 1,
@@ -50,5 +51,12 @@ export const globalStyles = StyleSheet.create( {
         color: colors.textSecondary,
         marginTop: 4,
         marginBottom: 30,
-    }
+    },
+    gridContainer: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        justifyContent: 'space-between',
+        paddingHorizontal: 16,
+        marginTop: 20,
+  },
 } );

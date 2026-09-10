@@ -4,7 +4,7 @@ import { ScrollView, Text } from 'react-native'
 
 const Meals = () => {
   return (
-      <ScrollView style={globalStyles.innerContainer}>
+      <ScrollView style={globalStyles.container}>
           <Text style={globalStyles.title}>
               All Meals
           </Text>

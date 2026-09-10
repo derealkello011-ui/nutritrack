@@ -1,6 +1,6 @@
 import HomeHeader from "@/components/HomeHeader";
+import MacroGrid from "@/components/MacroGrid";
 import { globalStyles } from "@/styles/global";
-import { Link } from "expo-router";
 import { ScrollView, Text } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
@@ -10,12 +10,7 @@ export default function HomeScreen() {
         <ScrollView style={globalStyles.container}>
           <Text style={globalStyles.title}>NutriTrack</Text>
         <HomeHeader />
-        <Link href={'/add-meal'} style={{
-          fontSize: 18,
-          color: '#007bff',
-        }} >
-          Go to Add Meals
-        </Link>
+        <MacroGrid />
         </ScrollView>
     </SafeAreaProvider>
   )
