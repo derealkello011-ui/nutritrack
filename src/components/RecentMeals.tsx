@@ -1,9 +1,12 @@
 import { globalStyles } from '@/styles/global'
+import { ReacentMealsProps } from '@/types/types'
 import React from 'react'
 import { Text, View } from 'react-native'
 import MealItem from './MealItem'
 
-const RecentMeals = () => {
+const RecentMeals = ( {
+    meals
+}: ReacentMealsProps) => {
   return (
       <View style={{
           marginTop: 30,
@@ -11,7 +14,24 @@ const RecentMeals = () => {
           <Text style={globalStyles.sectionTitle}>
               Recent Meals
           </Text>
-          <MealItem
+          {meals.length === 0 ? (
+              <Text style={globalStyles.empty}>
+                  No meals logged yet.
+              </Text>
+          ) : (
+                  meals.slice( 0, 5 ).map( ( meal ) => (
+                      <MealItem
+                          key={meal.id}
+                          name={meal.name}
+                          calories={meal.calories}
+                          protein={meal.protein}
+                          carbs={meal.carbs}
+                          fat={meal.fat}
+                      />
+                    )))
+            };
+
+          {/* <MealItem
               name='Araba Plantain Chips'
               calories={600}
               protein={23}
@@ -52,7 +72,7 @@ const RecentMeals = () => {
               protein={45}
               carbs={34}
               fat={17}
-          />
+          /> */}
     </View>
   )
 }

@@ -21,4 +21,12 @@ export type Meal = {
     carbs: number,
     fat: number,
     createdAt: string,
+};
+
+export type ReacentMealsProps = {
+    meals: Meal[];
+};
+
+export type MacroGridProps = {
+    meals: Meal[];
 }

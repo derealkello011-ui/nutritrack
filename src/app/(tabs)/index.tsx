@@ -1,12 +1,31 @@
 import HomeHeader from "@/components/HomeHeader";
 import MacroGrid from "@/components/MacroGrid";
 import RecentMeals from "@/components/RecentMeals";
+import { getMeals } from "@/storage/meals";
 import { globalStyles } from "@/styles/global";
+import { Meal } from "@/types/types";
+import { useFocusEffect } from "expo-router";
 import { StatusBar } from 'expo-status-bar';
-import { ScrollView, Text } from "react-native";
+import { useCallback, useState } from "react";
+import { Alert, ScrollView, Text } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 export default function HomeScreen() { 
+
+  const [ meals, setMeals ] = useState<Meal[]>( [] );
+  
+  const loadMeals = async () => {
+    const data = await getMeals();
+    setMeals( data );
+    Alert.alert( 'Success', `Loaded Meals ${ data }` );
+  };
+
+  useFocusEffect(
+    useCallback( () => {
+      loadMeals();
+    }, [] ),
+  );
+
   return (
     <SafeAreaProvider >
         <ScrollView 
@@ -16,8 +35,8 @@ export default function HomeScreen() {
         <Text style={globalStyles.title}>NutriTrack</Text>
         <StatusBar style="light"/>
         <HomeHeader />
-        <MacroGrid />
-        <RecentMeals />
+        <MacroGrid meals={meals} />
+        <RecentMeals meals={ meals } />
       </ScrollView>
       
     </SafeAreaProvider>
