@@ -1,60 +1,80 @@
 import MealItem from '@/components/MealItem';
 import { clearAllMeals, getMeals } from '@/storage/meals';
 import { globalStyles } from '@/styles/global';
+import { useTheme } from '@/theme/ThemeProvider';
+import { useAppAlert } from '@/components/AppAlertProvider';
 import { Meal } from '@/types/types';
 import { useFocusEffect } from 'expo-router';
 import React, { useCallback, useState } from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 const Meals = () => {
+  const { colors } = useTheme();
+  const { showAlert } = useAppAlert();
   const [ meals, setMeals ] = useState<Meal[]>( [] );
   
-  const loadMeals = async () => {
+  const loadMeals = useCallback( async () => {
     const data = await getMeals();
     setMeals( data );
-  };
+  }, []);
 
   const handleClearAll = async () => {
-    await clearAllMeals();
-    loadMeals();
+    showAlert(
+      'Clear all meals?',
+      'This permanently removes your complete meal history.',
+      {
+        type: 'warning',
+        buttons: [
+          { text: 'Cancel', variant: 'cancel' },
+          {
+            text: 'Clear all',
+            variant: 'destructive',
+            onPress: async () => {
+            await clearAllMeals();
+            await loadMeals();
+          },
+          },
+        ],
+      },
+    );
   };
 
   useFocusEffect(
     useCallback( () => {
       loadMeals();
-    }, [] ),
+    }, [loadMeals] ),
   );
 
     return (
-      <ScrollView style={globalStyles.container}>
-          <Text style={globalStyles.title}> 
-              All Meals
-        </Text>
-        
-        <View style={{marginTop: 30}}>
-          {meals.length === 0 ? (
-            <Text style={globalStyles.empty}>No meals logged yet</Text>
-          ) : (
-              meals.map( ( meal ) => (
-                <MealItem
-                  key={meal.id}
-                  id={meal.id}
-                  name={meal.name}
-                  calories={meal.calories}
-                  protein={meal.protein}
-                  carbs={meal.carbs}
-                  fat={meal.fat}
-                  onDelete={loadMeals}
-                />
-              ))
-          )}
-        </View>
-        <TouchableOpacity onPress={handleClearAll} >
-          <Text style={styles.clearButton}>
-            Clear All
-          </Text>
-        </TouchableOpacity>
-    </ScrollView>
+      <FlatList
+        style={[globalStyles.container, { backgroundColor: colors.background }]}
+        contentContainerStyle={{ paddingBottom: 120 }}
+        data={meals}
+        keyExtractor={(meal) => meal.id}
+        renderItem={({ item }) => (
+          <MealItem
+            id={item.id}
+            name={item.name}
+            calories={item.calories}
+            protein={item.protein}
+            carbs={item.carbs}
+            fat={item.fat}
+            onDelete={loadMeals}
+          />
+        )}
+        ListHeaderComponent={
+          <Text style={[globalStyles.title, { color: colors.text }]}>All Meals</Text>
+        }
+        ListEmptyComponent={
+          <Text style={[globalStyles.empty, { color: colors.textSecondary }]}>No meals logged yet</Text>
+        }
+        ListFooterComponent={
+          <TouchableOpacity onPress={handleClearAll}>
+            <Text style={[styles.clearButton, { color: colors.alert }]}>Clear All</Text>
+          </TouchableOpacity>
+        }
+        ItemSeparatorComponent={() => <View style={styles.itemSeparator} />}
+      />
   )
 }
 
@@ -63,10 +83,10 @@ export default Meals
 const styles = StyleSheet.create( {
   clearButton: {
     flex: 1,
-    color: 'red',
+    color: '#ff5252',
     fontSize: 16,
     marginTop: 10,
-    backgroundColor: '#fff',
+    backgroundColor: '#ffffff',
     borderRadius: 12,
     paddingBlockStart: 5,
     paddingBottom: 5,
@@ -75,5 +95,8 @@ const styles = StyleSheet.create( {
     alignContent: 'center',
     alignSelf: 'center',
 
+  },
+  itemSeparator: {
+    height: 0,
   }
 })

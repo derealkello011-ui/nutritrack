@@ -1,0 +1,21 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="1024" height="1024" rx="220" fill="#0F172A"/>
+  
+  <!-- Outer Subtle Glow Ring -->
+  <circle cx="512" cy="512" r="340" stroke="#ffffff" stroke-opacity="0.05" stroke-width="12"/>
+
+  <!-- Macro Meter Bars forming a stylized Tracker Ring / "N" motif -->
+  
+  <!-- Protein (Cyan) -->
+  <path d="M 360 680 L 360 340" stroke="#00E5FF" stroke-width="56" stroke-linecap="round"/>
+  
+  <!-- Calories (Coral/Red) -->
+  <path d="M 360 340 L 664 680" stroke="#FF5555" stroke-width="56" stroke-linecap="round"/>
+  
+  <!-- Carbs (Yellow) -->
+  <path d="M 664 680 L 664 340" stroke="#FFCC00" stroke-width="56" stroke-linecap="round"/>
+  
+  <!-- Fat (Green Accent Ring Node) -->
+  <circle cx="664" cy="340" r="32" fill="#00FF88"/>
+</svg>

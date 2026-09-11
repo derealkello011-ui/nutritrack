@@ -1,15 +1,17 @@
-import { colors } from "@/styles/global";
+import { useTheme } from "@/theme/ThemeProvider";
 import { Meal } from "@/types/types";
 import { Ionicons } from "@expo/vector-icons";
 import { Share, TouchableOpacity } from "react-native";
+import { useMemo } from "react";
 
 type ShareButtonProps = {
     meals: Meal[];
 };
 
 export default function ShareButton( { meals }: ShareButtonProps ) {
-    const handleShare = async () => {
-        const totals = meals.reduce(
+    const { colors: themeColors } = useTheme();
+    const totals = useMemo(
+        () => meals.reduce(
             ( acc, meal ) => ( {
                 calories: acc.calories + meal.calories,
                 protein: acc.protein + meal.protein,
@@ -17,15 +19,19 @@ export default function ShareButton( { meals }: ShareButtonProps ) {
                 fat: acc.fat + meal.fat,
             } ),
             { calories: 0, protein: 0, carbs: 0, fat: 0 },
-        );
+        ),
+        [meals],
+    );
+
+    const handleShare = async () => {
         await Share.share( {
-            message: `NutriTrack Daily Summary\n\nCalories: ${ totals.calories }\nProtein: ${ totals.protein }\nCarbs: ${ totals.carbs }\nFat: ${ totals.fat }\n\nMeals: ${meals.length} logged today.\nCreated by d3r3alk3ll0 😁`
+            message: `NutriTrack Daily Summary\n\nCalories: ${ totals.calories } kcal\nProtein: ${ totals.protein }g\nCarbs: ${ totals.carbs }g\nFat: ${ totals.fat }g\n\nMeals: ${meals.length} logged today.\nShared via NutriTrack 😁`
         } );
     };
 
     return (
         <TouchableOpacity onPress={handleShare}>
-            <Ionicons name="share-outline" size={24} color={colors.primary} />
+            <Ionicons name="share-outline" size={24} color={themeColors.primary} />
         </TouchableOpacity>
     )
 }

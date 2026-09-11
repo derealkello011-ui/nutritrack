@@ -1,9 +1,10 @@
-import { colors } from '@/styles/global'
 import { Ionicons } from '@expo/vector-icons'
 import { Tabs } from 'expo-router'
 import React from 'react'
+import { useTheme } from '@/theme/ThemeProvider'
 
 const TabLayout = () => {
+  const { colors } = useTheme();
   return (
     <Tabs
       screenOptions={{
@@ -57,6 +58,15 @@ const TabLayout = () => {
           title: 'All Meals',
           tabBarIcon: ({ color, size }) => (
             <Ionicons name='list' size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name='settings'
+        options={{
+          title: 'Settings',
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name='settings-outline' size={size} color={color} />
           ),
         }}
       />

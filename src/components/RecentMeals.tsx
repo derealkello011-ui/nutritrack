@@ -1,25 +1,28 @@
 import { globalStyles } from '@/styles/global'
+import { useTheme } from '@/theme/ThemeProvider'
 import { ReacentMealsProps } from '@/types/types'
 import React from 'react'
-import { Text, View } from 'react-native'
+import { FlatList, Text, View } from 'react-native'
 import MealItem from './MealItem'
 
 const RecentMeals = ( {
     meals, onDelete
 }: ReacentMealsProps) => {
+  const { colors } = useTheme();
   return (
       <View style={{marginTop: 30,}}>
-          <Text style={globalStyles.sectionTitle}>
+          <Text style={[globalStyles.sectionTitle, { color: colors.textSecondary }]}>
               Recent Meals
           </Text>
-          {meals.length === 0 ? (
-              <Text style={globalStyles.empty}>
-                  No meals logged yet.
-              </Text>
-          ) : (
-                  meals.slice( 0, 5 ).map( ( meal ) => (
+          <FlatList
+              data={meals.slice( 0, 5 )}
+              keyExtractor={(meal) => meal.id}
+              scrollEnabled={false}
+              ListEmptyComponent={
+                  <Text style={[globalStyles.empty, { color: colors.textSecondary }]}>No meals logged yet.</Text>
+              }
+              renderItem={({ item: meal }) => (
                       <MealItem
-                          key={meal.id}
                           id={meal.id}
                           name={meal.name}
                           calories={meal.calories}
@@ -28,8 +31,8 @@ const RecentMeals = ( {
                           fat={meal.fat}
                           onDelete={onDelete}
                       />
-                    )))
-            }
+              )}
+          />
     </View>
   )
 }

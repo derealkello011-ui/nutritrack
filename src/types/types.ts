@@ -2,7 +2,8 @@ export type MacroCardProps = {
     label: string,
     value: string,
     goal: string,
-    color: string
+    color: string,
+    progress: number,
 };
 
 export type Meal = {
@@ -23,3 +24,13 @@ export type ReacentMealsProps = {
 export type MacroGridProps = {
     meals: Meal[];
 }
+
+export type MealTemplate = Omit<Meal, 'id' | 'createdAt'> & {
+    count: number;
+};
+
+export type DailyMealTotal = {
+    date: string;
+    calories: number;
+    protein: number;
+};

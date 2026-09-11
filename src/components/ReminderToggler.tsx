@@ -1,24 +1,24 @@
-import { colors } from "@/styles/global";
-import { cancelMealReminders, requestPermissions, scheduleMealReminders } from "@/utils/notification";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useEffect, useState } from "react";
-import { StyleSheet, Switch, Text, View } from "react-native";
-
+import { useTheme } from '@/theme/ThemeProvider';
+import { cancelMealReminders, requestPermissions, scheduleMealReminders } from '@/utils/notification';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useEffect, useState } from 'react';
+import { StyleSheet, Switch, Text, View } from 'react-native';
 
 const REMINDERS_KEY = 'remindersEnabled';
 
-export default function ReminderToggle() {
-    const [ enabled, setEnabled ] = useState( false );
+type ReminderToggleProps = {
+    compact?: boolean;
+};
+
+export default function ReminderToggle({ compact = false }: ReminderToggleProps) {
+    const { colors } = useTheme();
+    const [enabled, setEnabled] = useState( false );
 
     useEffect( () => {
-        const load = async () => {
-            const val = await AsyncStorage.getItem( REMINDERS_KEY );
-            setEnabled( val === 'true' );
-        };
-        load();
+        AsyncStorage.getItem( REMINDERS_KEY ).then( (value) => setEnabled( value === 'true' ) );
     }, [] );
 
-    const toggle = async ( value: boolean ) => {
+    const toggle = async (value: boolean) => {
         if ( value ) {
             const granted = await requestPermissions();
             if ( !granted ) return;
@@ -31,32 +31,28 @@ export default function ReminderToggle() {
     };
 
     return (
-        <View style={styles.container}>
-            <Text style={styles.label}>
-                Meal Reminders
-            </Text>
+        <View style={[styles.container, compact && styles.compact]}>
+            {!compact && <Text style={[styles.label, { color: colors.text }]}>Meal Reminders</Text>}
             <Switch
                 value={enabled}
                 onValueChange={toggle}
-                trackColor={{
-                    false: colors.surface,
-                    true: colors.primary,
-                }}
+                trackColor={{ false: colors.surface, true: colors.primary }}
             />
         </View>
     );
-
-};
+}
 
 const styles = StyleSheet.create( {
     container: {
+        alignItems: 'center',
         flexDirection: 'row',
         justifyContent: 'space-between',
-        alignItems: 'center',
         marginTop: 30,
     },
+    compact: {
+        marginTop: 0,
+    },
     label: {
-        color: colors.text,
         fontSize: 16,
-    }
-})
+    },
+} );

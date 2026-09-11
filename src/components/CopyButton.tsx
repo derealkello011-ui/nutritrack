@@ -1,9 +1,11 @@
-import { colors } from "@/styles/global";
+import { useTheme } from "@/theme/ThemeProvider";
 import { Meal } from "@/types/types";
 import { Ionicons } from "@expo/vector-icons";
 import * as Clipboard from 'expo-clipboard';
 import * as Haptics from 'expo-haptics';
-import { Alert, StyleSheet, Text, TouchableOpacity } from "react-native";
+import { StyleSheet, Text, TouchableOpacity } from "react-native";
+import { useMemo } from "react";
+import { useAppAlert } from '@/components/AppAlertProvider';
 
 
 type CopyButtonProps = {
@@ -11,8 +13,10 @@ type CopyButtonProps = {
 }
 
 export default function CopyButton( { meals }: CopyButtonProps ) {
-    const handleCopy = async () => {
-        const totals = meals.reduce(
+    const { colors: themeColors } = useTheme();
+    const { showAlert } = useAppAlert();
+    const totals = useMemo(
+        () => meals.reduce(
             ( acc, meal ) => ( {
                 calories: acc.calories + meal.calories,
                 protein: acc.protein + meal.protein,
@@ -20,13 +24,16 @@ export default function CopyButton( { meals }: CopyButtonProps ) {
                 fat: acc.fat + meal.fat,
             } ),
             { calories: 0, protein: 0, carbs: 0, fat: 0 },
-        );
+        ),
+        [meals],
+    );
 
-        const summary = `NutriTrack Daily Summary:\n\nCalories: ${ totals.calories }\nProtein: ${ totals.protein }\nCarbs: ${ totals.carbs }\nFat: ${ totals.fat }\n\nMeals: ${ meals.length } logged today.\nCreated by d3r3alk3ll0 😁`
+    const handleCopy = async () => {
+        const summary = `NutriTrack Daily Summary:\n\nCalories: ${ totals.calories } kcal\nProtein: ${ totals.protein }g\nCarbs: ${ totals.carbs }g\nFat: ${ totals.fat }g\n\nMeals: ${ meals.length } logged today.\nShared via NutriTrack 😁`
         
         await Clipboard.setStringAsync( summary );
         Haptics.notificationAsync( Haptics.NotificationFeedbackType.Success );
-        Alert.alert( 'Copied', 'Macro summary copied to clipboard!' );
+        showAlert( 'Copied', 'Macro summary copied to clipboard!', { type: 'success' } );
     };
 
     return (
@@ -34,9 +41,9 @@ export default function CopyButton( { meals }: CopyButtonProps ) {
             <Ionicons
                 name="copy-outline"
                 size={18}
-                color={colors.primary}
+                color={themeColors.primary}
             />
-            <Text style={styles.text}>
+            <Text style={[styles.text, { color: themeColors.primary }]}>
                 Copy Summary
             </Text>
         </TouchableOpacity>
@@ -50,7 +57,6 @@ const styles = StyleSheet.create({
         marginTop: 16,
     },
     text: {
-        color: colors.primary,
         fontSize: 14,
     }
 });

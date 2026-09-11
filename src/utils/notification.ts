@@ -20,7 +20,7 @@ export const scheduleMealReminders = async () => {
 
     await Notifications.scheduleNotificationAsync( {
         content: {
-            title: 'd3r3al Track',
+            title: 'NutriTrack',
             body: "Don't forget to log your lunch!",
         },
         trigger: {
@@ -44,7 +44,7 @@ export const scheduleMealReminders = async () => {
 
     await Notifications.scheduleNotificationAsync( {
         content: {
-            title: "d3r3al Track",
+            title: "NutriTrack",
             body: "Time to log your breakfast!",
         },
         trigger: {

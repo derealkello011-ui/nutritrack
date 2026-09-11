@@ -1,49 +1,37 @@
-import { addMeal } from '@/storage/meals';
-import { colors, globalStyles } from '@/styles/global';
+import FrequentMeals from '@/components/FrequentMeals';
+import { useAppAlert } from '@/components/AppAlertProvider';
+import { globalStyles } from '@/styles/global';
+import { addMeal, getFrequentMeals } from '@/storage/meals';
+import { dateFromKey, formatDateLabel } from '@/utils/date';
+import { MealTemplate } from '@/types/types';
+import { useTheme } from '@/theme/ThemeProvider';
 import * as Haptics from 'expo-haptics';
-import { router } from 'expo-router';
-import React, { useState } from 'react';
-import { Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-
-type AlertType = 'success' | 'error';
-
-interface AlertConfig {
-  title: string;
-  message: string;
-  type: AlertType;
-  onConfirm?: () => void;
-}
+import { router, useLocalSearchParams } from 'expo-router';
+import React, { useEffect, useState } from 'react';
+import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 const AddMealScreen = () => {
+  const { colors } = useTheme();
+  const { showAlert } = useAppAlert();
+  const { date } = useLocalSearchParams<{ date?: string }>();
+  const selectedDate = typeof date === 'string' ? dateFromKey( date ) : null;
   const [name, setName] = useState("");
   const [calories, setCalories] = useState("");
   const [protein, setProtein] = useState("");
   const [carbs, setCarbs] = useState("");
   const [fat, setFat] = useState("");
+  const [frequentMeals, setFrequentMeals] = useState<MealTemplate[]>( [] );
 
-  // Reusable Dynamic Alert State
-  const [alertVisible, setAlertVisible] = useState(false);
-  const [alertConfig, setAlertConfig] = useState<AlertConfig>({
-    title: "",
-    message: "",
-    type: "error",
-  });
+  useEffect( () => {
+    getFrequentMeals().then( setFrequentMeals );
+  }, [] );
 
-  const showAlert = (
-    title: string,
-    message: string,
-    type: AlertType = "error",
-    onConfirm?: () => void
-  ) => {
-    setAlertConfig({ title, message, type, onConfirm });
-    setAlertVisible(true);
-  };
-
-  const handleAlertClose = () => {
-    setAlertVisible(false);
-    if (alertConfig.onConfirm) {
-      alertConfig.onConfirm();
-    }
+  const handleTemplateSelect = (template: MealTemplate) => {
+    setName( template.name );
+    setCalories( String( template.calories ) );
+    setProtein( String( template.protein ) );
+    setCarbs( String( template.carbs ) );
+    setFat( String( template.fat ) );
   };
 
   const handleAddMeal = async () => {
@@ -51,16 +39,38 @@ const AddMealScreen = () => {
       showAlert(
         "Missing Information",
         "One or more of the items is missing. Please complete all fields.",
-        "error"
+        { type: 'error' }
       );
     } else {
-      await addMeal({
-        name,
-        calories: Number(calories),
-        protein: Number(protein) || 0,
-        carbs: Number(carbs) || 0,
-        fat: Number(fat) || 0,
-      });
+      const numericValues = [calories, protein, carbs, fat].map( Number );
+      if ( numericValues.some( (value) => !Number.isFinite( value ) || value < 0 ) ) {
+        showAlert(
+          "Invalid Nutrition Values",
+          "Calories and macros must be valid non-negative numbers.",
+          { type: 'error' }
+        );
+        return;
+      }
+
+      const mealDate = selectedDate
+        ? new Date(
+          selectedDate.getFullYear(),
+          selectedDate.getMonth(),
+          selectedDate.getDate(),
+          12,
+        ).toISOString()
+        : undefined;
+
+      await addMeal(
+        {
+          name,
+          calories: Number(calories),
+          protein: Number(protein) || 0,
+          carbs: Number(carbs) || 0,
+          fat: Number(fat) || 0,
+        },
+        mealDate,
+      );
 
       // Clear form inputs
       setName('');
@@ -73,21 +83,31 @@ const AddMealScreen = () => {
       showAlert(
         "Meal Added",
         "Meal added successfully!",
-        "success",
-        () => {
-          Haptics.notificationAsync( Haptics.NotificationFeedbackType.Success );
-          router.push( '/' );
-        }
+        {
+          type: 'success',
+          buttons: [{
+            text: 'Continue',
+            variant: 'default',
+            onPress: () => {
+              Haptics.notificationAsync( Haptics.NotificationFeedbackType.Success );
+              router.push( '/' );
+            },
+          }],
+        },
       );
     }
   };
 
   return (
     <View style={globalStyles.container}>
-      <Text style={globalStyles.title}>Add Meal</Text>
+      <Text style={[globalStyles.title, { color: colors.text }]}>
+        Add Meal{selectedDate ? ` for ${formatDateLabel( selectedDate )}` : ''}
+      </Text>
+
+      <FrequentMeals templates={frequentMeals} onSelect={handleTemplateSelect} />
       
       <TextInput
-        style={[style.input, { marginTop: 20 }]}
+        style={[style.input, { backgroundColor: colors.surface, borderColor: colors.border, color: colors.text, marginTop: 20 }]}
         placeholder='Meal name'
         placeholderTextColor={colors.textSecondary}
         value={name}
@@ -95,7 +115,7 @@ const AddMealScreen = () => {
       />
       
       <TextInput
-        style={style.input}
+        style={[style.input, { backgroundColor: colors.surface, borderColor: colors.border, color: colors.text }]}
         placeholder='Calories'
         placeholderTextColor={colors.textSecondary}
         keyboardType='numeric'
@@ -105,7 +125,7 @@ const AddMealScreen = () => {
       
       <View style={style.row}>
         <TextInput
-          style={[style.input, style.rowInput]}
+          style={[style.input, style.rowInput, { backgroundColor: colors.surface, borderColor: colors.border, color: colors.text }]}
           placeholder='Protein (g)'
           placeholderTextColor={colors.textSecondary}
           keyboardType='numeric'
@@ -114,7 +134,7 @@ const AddMealScreen = () => {
         />
         
         <TextInput
-          style={[style.input, style.rowInput]}
+          style={[style.input, style.rowInput, { backgroundColor: colors.surface, borderColor: colors.border, color: colors.text }]}
           placeholder='Carbs (g)'
           placeholderTextColor={colors.textSecondary}
           keyboardType='numeric'
@@ -123,7 +143,7 @@ const AddMealScreen = () => {
         />
         
         <TextInput
-          style={[style.input, style.rowInput]}
+          style={[style.input, style.rowInput, { backgroundColor: colors.surface, borderColor: colors.border, color: colors.text }]}
           placeholder='Fat (g)'
           placeholderTextColor={colors.textSecondary}
           keyboardType='numeric'
@@ -133,38 +153,13 @@ const AddMealScreen = () => {
       </View>
 
       <TouchableOpacity
-        style={style.button}
+        style={[style.button, { backgroundColor: colors.primary }]}
         onPress={handleAddMeal}
       >
-        <Text style={style.buttonText}>
+        <Text style={[style.buttonText, { color: colors.background }]}>
           Add Meal
         </Text>
       </TouchableOpacity>
-
-      {/* Dynamic Alert Modal */}
-      <Modal
-        visible={alertVisible}
-        transparent={true}
-        animationType="fade"
-        onRequestClose={handleAlertClose}
-      >
-        <View style={style.modalOverlay}>
-          <View style={style.alertBox}>
-            <Text style={style.alertTitle}>{alertConfig.title}</Text>
-            <Text style={style.alertMessage}>{alertConfig.message}</Text>
-            
-            <TouchableOpacity
-              style={[
-                style.alertButton,
-                alertConfig.type === 'error' ? style.errorButton : style.successButton
-              ]}
-              onPress={handleAlertClose}
-            >
-              <Text style={style.alertButtonText}>OK</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
 
     </View>
   );
@@ -174,13 +169,13 @@ export default AddMealScreen;
 
 const style = StyleSheet.create({
   input: {
-    backgroundColor: colors.surface,
-    color: colors.text,
+    backgroundColor: '#ffffff',
+    color: '#172033',
     padding: 15,
     borderRadius: 10,
     fontSize: 16,
     marginTop: 16,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
+    borderColor: 'rgba(23, 32, 51, 0.12)',
     borderWidth: 1,
   },
   row: {
@@ -191,69 +186,15 @@ const style = StyleSheet.create({
     flex: 1,
   },
   buttonText: {
-    color: colors.background,
+    color: '#172033',
     fontSize: 16,
     fontWeight: 'bold',
   },
   button: {
-    backgroundColor: colors.primary,
+    backgroundColor: '#087ea4',
     padding: 16,
     borderRadius: 10,
     alignItems: 'center',
-    marginTop: 20, 
-  },
-  
-  /* Custom Alert Styles */
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.65)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 24,
-  },
-  alertBox: {
-    width: '100%',
-    maxWidth: 320,
-    backgroundColor: colors.surface,
-    borderRadius: 16,
-    padding: 20,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
-    elevation: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 10,
-  },
-  alertTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: colors.text,
-    marginBottom: 8,
-  },
-  alertMessage: {
-    fontSize: 14,
-    color: colors.textSecondary,
-    textAlign: 'center',
-    marginBottom: 20,
-    lineHeight: 20,
-  },
-  alertButton: {
-    width: '100%',
-    paddingVertical: 12,
-    borderRadius: 10,
-    alignItems: 'center',
-  },
-  errorButton: {
-    backgroundColor: '#ff4d4d',
-  },
-  successButton: {
-    backgroundColor: '#2ecc71',
-  },
-  alertButtonText: {
-    color: '#fff',
-    fontSize: 15,
-    fontWeight: 'bold',
+    marginTop: 20,
   },
 });
